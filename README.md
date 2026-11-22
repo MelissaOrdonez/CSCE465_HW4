@@ -70,12 +70,12 @@ Assignment Files:
     
     
 Assignment Task Commands
-Task 1 - Build the local network lab
+- Task 1: Build the local network lab
     - Start the lab with `docker compose up -d --build`
     - Check the lab is running with `docker compose ps` and `docker network inspect hw4_hw4net`
     - Run the mock skill with the exact trigger with `docker compose exec agent-node /app/mock_skill.sh exfiltrate-course-file`
     - Compare the fake secret with the data received by mock-c2 with `docker compose exec mock-c2 cat /data/received.bin` and `cat fake_secrets.txt`
-Task 2 - Scan, capture, and reconstruct the event
+- Task 2: Scan, capture, and reconstruct the event
     - Start the listener in agent-node with `docker compose exec agent-node /app/mock_skill.sh`
     - Scan IP address 172.30.0.10 with `sudo nmap -sT -p 9009 172.30.0.10`
     - Start a packet capture with `sudo tcpdump -i br-hw4 -s 0 -w hw4-malicious.pcap 'net 172.30.0.0/24'`
@@ -83,5 +83,5 @@ Task 2 - Scan, capture, and reconstruct the event
     - Use TShark commands to understand what happened
     - Start another packet capture with the same command as above
     - Request the benign page with `docker compose exec agent-node curl http://172.30.0.40:8000/benign.html`
-Task 3 - Default-deny egress for the agent container
-Task 4 - Three Suricata rules
+- Task 3: Default-deny egress for the agent container
+- Task 4: Three Suricata rules
